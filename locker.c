@@ -125,10 +125,7 @@ int pass[]={30,30,30,30};
 void setup() 
 {
   Serial.begin(115200);
-  pinMode(led1,OUTPUT);
-  pinMode(led2,OUTPUT);
-  pinMode(led3,OUTPUT);
-  pinMode(led4,OUTPUT);
+  pinMode(led1,OUTPUT);pinMode(led2,OUTPUT);pinMode(led3,OUTPUT);pinMode(led4,OUTPUT);
 }
 
 void loop() 
@@ -136,8 +133,7 @@ void loop()
   key=readSW();
   if(key!=20&&key!=oldKey)
   {
-    Serial.print("key in= ");
-    Serial.println(key);
+    Serial.print("key in= "); Serial.println(key);
     oldKey=key;
     lastRead=millis();
     if(count==0)
@@ -177,15 +173,9 @@ void loop()
 
   if(millis()-lastCount>5000)
   {
-    pass[0]=30;
-    pass[1]=30;
-    pass[2]=30;
-    pass[3]=30;
+    pass[]={30,30,30,30};
     count=0;
-    digitalWrite(led1,LOW);
-    digitalWrite(led2,LOW);
-    digitalWrite(led3,LOW);
-    digitalWrite(led4,LOW);
+    digitalWrite(led1,LOW); digitalWrite(led2,LOW); digitalWrite(led3,LOW); digitalWrite(led4,LOW);
     lastCount=millis();
   }
   delay(50);
