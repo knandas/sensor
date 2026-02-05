@@ -225,7 +225,63 @@ void blink()
 
 
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// esp32 EEPROM /////////////////////////////////////////////////
 
+#include "EEPROM.h"
+
+// Define the size of the emulated EEPROM
+#define EEPROM_SIZE 512
+
+void setup() 
+{
+  Serial.begin(115200);
+  delay(1000);
+  Serial.println("\nTesting ESP32 EEPROM Library");
+
+  // Initialize EEPROM with the defined size
+  if (!EEPROM.begin(EEPROM_SIZE)) 
+  {
+    Serial.println("Failed to initialize EEPROM");
+    delay(1000);
+    ESP.restart();
+  }
+
+  // --- Writing Data ---
+  int address = 0;
+  int valueToWrite = 42;
+  String stringToWrite = "Hello, ESP32!";
+
+  // Write an integer
+  EEPROM.writeInt(address, valueToWrite);
+  address += sizeof(int); // Move address to the next available spot
+
+  // Write a string
+  EEPROM.writeString(address, stringToWrite);
+  
+  // Commit changes to flash memory (MANDATORY for saving data permanently)
+  EEPROM.commit(); 
+  Serial.println("Data written and committed to EEPROM.");
+
+  // --- Reading Data ---
+  address = 0; // Reset address to the beginning
+  int readValue = EEPROM.readInt(address);
+  address += sizeof(int);
+
+  String readString = EEPROM.readString(address);
+
+  Serial.print("Read Integer Value: ");
+  Serial.println(readValue);
+  Serial.print("Read String Value: ");
+  Serial.println(readString);
+}
+
+void loop() 
+{
+  // Empty loop
+}
+
+/////////////////////////////////////////////////////////////////////////////
 
 
 
