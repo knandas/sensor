@@ -173,7 +173,11 @@ void loop()
 
   if(millis()-lastCount>5000)
   {
-    pass[]={30,30,30,30};
+    //pass[]={30,30,30,30};
+    pass[0]=30;
+    pass[1]=30;
+    pass[2]=30;
+    pass[3]=30;
     count=0;
     digitalWrite(led1,LOW); digitalWrite(led2,LOW); digitalWrite(led3,LOW); digitalWrite(led4,LOW);
     lastCount=millis();
