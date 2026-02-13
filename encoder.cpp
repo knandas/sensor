@@ -315,6 +315,110 @@ void loop()
     delay(5000);  
 }
 
+////////////////////////////////////////////////////////////////
+//////////////// esp32 ledc motor control with encoder lib .ino///////////
+#include "myEncoder.h"
+
+#define sw 18 //19  //MISO=19  //25
+#define dt 15 //15
+#define clk 19 //18 //SCK=18 //33
+const int freq = 100;
+//const int ledChannel = 0;
+const int resolution = 8;
+int R1 = 4;
+int R2 = 2;
+#define PWM_R1 0
+#define PWM_R2 1
+
+myEncoder Enc1(dt,clk,sw);
+
+int speed=200;
+int rotate=0;
+unsigned long delayTime1;
+bool swState=0,lastSwState=0,mode=0,dir=0;
+
+void setup() 
+{
+  Serial.begin(115200);
+  delay(100);
+  pinMode(R1,OUTPUT);
+  pinMode(R2,OUTPUT);
+  ledcSetup(PWM_R1, freq, resolution);
+  ledcSetup(PWM_R2, freq, resolution);
+  ledcAttachPin(R1, PWM_R1);
+  ledcAttachPin(R2, PWM_R2);
+}
+
+void loop() 
+{
+  rotate=Enc1.update();
+  if(rotate==1)
+  {
+    Serial.println("sw press");
+    mode=!mode;
+    if(mode==0)
+    {
+      ledcWrite(PWM_R1, 0);
+      ledcWrite(PWM_R2, 0);
+    }else
+    {
+      drive();
+    }
+  }
+
+  if(rotate==3) 
+  {
+    speed=speed+5;
+    if(speed>255)speed=255;
+    displayData();
+    if(mode==1)
+    {
+      drive();
+    }
+  } 
+  if(rotate==2) 
+  {
+    speed=speed-5; 
+    if(speed<-255)speed=-255;
+    displayData();
+    if(mode==1)
+    {
+      drive();
+    }
+  }
+  
+ if ((millis() - delayTime1) > 500)
+ {
+  displayData();
+  delayTime1=millis();
+ }
+}
+ 
+void drive()
+{
+  if(speed>=0)
+  {
+    ledcWrite(PWM_R1, speed);
+    ledcWrite(PWM_R2, 0);
+  }else
+  {
+    ledcWrite(PWM_R1, 0);
+    ledcWrite(PWM_R2, speed*-1);
+  }
+}
+
+void displayData()
+{
+  Serial.print("set:");
+  Serial.print(speed);
+  Serial.print(" ");
+  if(mode==0)
+  Serial.println("Off");
+  else
+  Serial.println("On");
+}
+
+
 
 ///////////////////////////////////////////////////////////////
 ///////// Method1 counts in specific time.ino ///////////
