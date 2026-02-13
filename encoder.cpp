@@ -542,3 +542,129 @@ void displayData()
 }
 
 //////////////////////////////////////////////////////////////////////////////
+////////////////////////// method2 delta //////////////////////////////////////////
+
+#include "myEncoder.h"
+
+#define sw 18 //19  //MISO=19  //25
+#define dt 15 //15
+#define clk 19 //18 //SCK=18 //33
+#define dt2 27
+#define ck2 33
+const int freq = 100;
+const int resolution = 8;
+int R1 = 4;
+int R2 = 2;
+#define PWM_R1 0
+#define PWM_R2 1
+
+myEncoder Enc1(dt,clk,sw);
+
+int speed=200;
+int rotate=0,rotate2=0,count=0;
+unsigned long delayTime1; 
+unsigned long intTime=0,lastIntTime=0,delta=0; 
+bool swState=0,lastSwState=0,mode=0,dir=0;
+
+void  pulse()
+{
+  lastIntTime=intTime;
+  intTime=micros();
+}
+
+
+void setup() 
+{
+  Serial.begin(115200);
+  delay(100);
+  pinMode(R1,OUTPUT);
+  pinMode(R2,OUTPUT);
+  ledcSetup(PWM_R1, freq, resolution);
+  ledcSetup(PWM_R2, freq, resolution);
+  ledcAttachPin(R1, PWM_R1);
+  ledcAttachPin(R2, PWM_R2); 
+  pinMode(ck2,INPUT_PULLUP);
+  pinMode(dt2,INPUT_PULLUP);
+  attachInterrupt(ck2, pulse, FALLING);
+}
+
+void loop() 
+{
+  rotate=Enc1.update();
+
+  if(rotate==1)
+  {
+    Serial.println("sw press");
+    mode=!mode;
+    if(mode==0)
+    {
+      ledcWrite(PWM_R1, 0);
+      ledcWrite(PWM_R2, 0);
+    }else
+    {
+      drive();
+    }
+  }
+
+  if(rotate==2) 
+  {
+    speed=speed+10;
+    if(speed>255)speed=255;
+    displayData();
+    if(mode==1)
+    {
+      drive();
+    }
+  } 
+  if(rotate==3) 
+  {
+    speed=speed-10; 
+    if(speed<-255)speed=-255;
+    displayData();
+    if(mode==1)
+    {
+      drive();
+    }
+  }
+
+ if ((millis() - delayTime1) > 1000)
+ {
+  displayData();
+  delayTime1=millis();
+  count=0;
+ }
+}
+ 
+void drive()
+{
+  if(speed>=0)
+  {
+    ledcWrite(PWM_R1, speed);
+    ledcWrite(PWM_R2, 0);
+  }else
+  {
+    ledcWrite(PWM_R1, 0);
+    ledcWrite(PWM_R2, speed*-1);
+  }
+}
+
+void displayData()
+{
+  Serial.print("set:");
+  Serial.print(speed);
+  delta=intTime-lastIntTime;
+  if(delta>50000)delta=50000;
+  Serial.print("delta:");
+  Serial.print(delta);
+  Serial.print(" ");
+  Serial.print("rps:");
+  Serial.print(1000000/delta);
+  if(mode==0)
+  Serial.println(" Off");
+  else
+  Serial.println(" On");
+}
+
+
+
+
