@@ -544,6 +544,70 @@ class myAT24C32
 
 };
 #endif
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////myAT24C32.h///////////////////////////////////
+
+/* 
+ * File:   myAT24C32.cpp
+ * Author: nandhasri.k@gmail.com
+ */
+
+#include <Wire.h>
+#include "myAT24C32.h"
+//#include <Arduino.h>
+
+myAT24C32::myAT24C32(uint8_t i2c_address)
+{
+  Wire.begin();
+  _i2c_address = i2c_address;
+}
+
+byte myAT24C32::read(uint16_t address)
+{
+  Wire.beginTransmission(_i2c_address);
+  Wire.write(address>>8);
+  Wire.write(address&0x00FF);
+  Wire.endTransmission();
+  
+  Wire.requestFrom(_i2c_address,(uint8_t) 1);
+  uint8_t readOut = Wire.read();
+  return readOut;
+}
+
+void myAT24C32::write(uint16_t address,uint8_t value)
+{
+  Wire.beginTransmission(_i2c_address);
+  Wire.write(address>>8);
+  Wire.write(address&0x00FF);
+  Wire.write(value);
+  Wire.endTransmission();
+  delay(4);
+}
+
+void myAT24C32::clear(uint8_t  value)
+{
+  _address=0;
+  Wire.beginTransmission(_i2c_address);
+  for(_address=0;_address<4096;_address++)
+  {
+   Wire.write(_address>>8);
+   Wire.write(_address&0x00FF);
+   Wire.endTransmission();
+   delay(4);
+   Wire.requestFrom(_i2c_address,(uint8_t)1);
+   uint8_t readOut = Wire.read();
+   delay(4);
+   if(readOut!= value)
+   {
+    Wire.beginTransmission(_i2c_address);
+    Wire.write(_address>>8);
+    Wire.write(_address&0x00FF);
+    Wire.write(value);
+    Wire.endTransmission();
+    delay(4);
+   }
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////
 ////////////myRTC.ino //////////////////////////////////////////////////
